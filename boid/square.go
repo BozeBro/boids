@@ -1,7 +1,7 @@
 package boid
 
 import (
-	"math"
+	"image/color"
 
 	v "github.com/BozeBro/boids/vector"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -14,7 +14,6 @@ type Square struct {
 	Pos         *v.Vector2D
 	Vel         *v.Vector2D
 	Accel       *v.Vector2D
-	Image       *ebiten.Image
 }
 
 func (s *Square) Update(sx, sy float64) {
@@ -25,8 +24,17 @@ func (s *Square) Update(sx, sy float64) {
 	s.Pos.X = Teleport(s.Pos.X, sx)
 	s.Pos.Y = Teleport(s.Pos.Y, sy)
 }
+func (s *Square) Draw(screen *ebiten.Image) {
+	theta := v.Angle(s.Vel.X, s.Vel.Y)
+	option := &ebiten.DrawImageOptions{}
+	option.GeoM.Rotate(theta)
+	option.GeoM.Translate(s.Pos.X, s.Pos.Y)
+	sq := ebiten.NewImage(2, 2)
+	sq.Fill(color.RGBA{255, 0, 0, 255})
+	screen.DrawImage(sq, option)
+}
 
-func (s *Square) Trig() (x, y float64) {
+/* func (s *Square) Trig() (x, y float64) {
 	const (
 		partW   = 2
 		partH   = 2
@@ -44,13 +52,4 @@ func (s *Square) Trig() (x, y float64) {
 	x = s.Pos.X + unitVecX*float64(s.ImageWidth)/partW - offsetx
 	y = s.Pos.Y + unitVecY*float64(s.ImageHeight)/partH - offsety
 	return x, y
-}
-
-func (s *Square) Draw(screen *ebiten.Image, option ebiten.DrawImageOptions) {
-	offsetx, offsety := s.Trig()
-	theta := v.Angle(s.Vel.X, s.Vel.Y)
-	option.GeoM.Rotate(theta)
-	option.GeoM.Translate(s.Pos.X+offsetx, s.Pos.Y+offsety)
-	image := ebiten.NewImage(2, 2)
-	screen.DrawImage(image, &option)
-}
+} */

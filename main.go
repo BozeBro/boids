@@ -37,9 +37,8 @@ func (sim *Sim) Update() error {
 
 func (sim *Sim) Draw(screen *ebiten.Image) {
 	screen.Fill(color.White)
-	option := ebiten.DrawImageOptions{}
 	for _, boid := range sim.population {
-		boid.Draw(screen, option)
+		boid.Draw(screen)
 	}
 }
 
@@ -48,21 +47,21 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	sim := Sim{}
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
-	image := makeImage("images/arrowV2.png")
+	image := makeImage("images/arrow.png")
 	w, h := image.Size()
-	boid := b.Arrow{
+	boid := &b.Arrow{
+		Image:       image,
 		ImageWidth:  w,
 		ImageHeight: h,
 		SightDis:    w,
 		Pos:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 3, Y: 1},
+		Vel:         &v.Vector2D{X: 0, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
-	sq := b.Square{
-		Image:       image,
+
+	sq := &b.Square{
 		ImageWidth:  boid.ImageWidth,
 		ImageHeight: boid.ImageHeight,
 		SightDis:    3,
@@ -70,8 +69,25 @@ func main() {
 		Vel:         boid.Vel,
 		Accel:       boid.Accel,
 	}
-	sim.population = append(sim.population, &boid, &sq)
-	if err := ebiten.RunGame(&sim); err != nil {
+	tri := &b.Triangle{
+		ImageWidth:  w,
+		ImageHeight: h,
+		SightDis:    3,
+		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
+		Vel:         &v.Vector2D{X: 1, Y: 1},
+		Accel:       &v.Vector2D{X: 0, Y: 0},
+	}
+	tri.Left = &v.Vector2D{
+		X: tri.Top.X - float64(tri.ImageWidth)/2,
+		Y: tri.Top.Y + float64(tri.ImageHeight),
+	}
+	tri.Right = &v.Vector2D{
+		X: tri.Top.X + float64(tri.ImageWidth)/2,
+		Y: tri.Top.Y + float64(tri.ImageHeight),
+	}
+	sim := &Sim{}
+	sim.population = append(sim.population, tri, sq)
+	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
 	}
 }

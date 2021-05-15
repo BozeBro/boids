@@ -8,7 +8,7 @@ import (
 type Boid interface {
 	// screen sizes
 	Update(float64, float64)
-	Draw(*ebiten.Image, ebiten.DrawImageOptions)
+	Draw(*ebiten.Image)
 }
 type Arrow struct {
 	ImageWidth  int
@@ -40,9 +40,12 @@ func (a *Arrow) SupplyImage() *ebiten.Image {
 	return nil
 }
 
-func (a *Arrow) Draw(screen *ebiten.Image, option ebiten.DrawImageOptions) {
+func (a *Arrow) Draw(screen *ebiten.Image) {
+	option := &ebiten.DrawImageOptions{}
 	theta := v.Angle(a.Vel.X, a.Vel.Y)
+	// Do this translation so PosX, PosY is near the center of the arrow.
+	option.GeoM.Translate(-1*float64(a.ImageWidth)/2, -1*float64(a.ImageHeight)/2)
 	option.GeoM.Rotate(theta)
 	option.GeoM.Translate(a.Pos.X, a.Pos.Y)
-	screen.DrawImage(a.Image, &option)
+	screen.DrawImage(a.Image, option)
 }
