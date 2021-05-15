@@ -51,5 +51,6 @@ func (s *Square) Draw(screen *ebiten.Image, option ebiten.DrawImageOptions) {
 	theta := v.Angle(s.Vel.X, s.Vel.Y)
 	option.GeoM.Rotate(theta)
 	option.GeoM.Translate(s.Pos.X+offsetx, s.Pos.Y+offsety)
-	screen.DrawImage(s.Image, &option)
+	image := ebiten.NewImage(2, 2)
+	screen.DrawImage(image, &option)
 }
