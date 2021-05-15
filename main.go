@@ -26,16 +26,18 @@ func makeImage(path string) *ebiten.Image {
 
 type Sim struct {
 	image      *ebiten.Image
-	population []*b.Boid
+	population []*b.Arrow
 }
 
 func (sim *Sim) Update() error {
 	for _, object := range sim.population {
-		object.AvoidWalls(float64(screenWidth), float64(screenHeight))
-		object.Position.X += object.Velocity.X
-		object.Position.Y += object.Velocity.Y
-		object.Velocity.X += object.Acceleration.X
-		object.Velocity.Y += object.Acceleration.Y
+		//object.AvoidWalls(float64(screenWidth), float64(screenHeight))
+		object.Pos.X += object.Vel.X
+		object.Pos.Y += object.Vel.Y
+		object.Vel.X += object.Accel.X
+		object.Vel.Y += object.Accel.Y
+		object.Pos.X = b.Teleport(object.Pos.X, screenWidth)
+		object.Pos.Y = b.Teleport(object.Pos.Y, screenHeight)
 	}
 	return nil
 }
@@ -44,10 +46,10 @@ func (sim *Sim) Draw(screen *ebiten.Image) {
 	screen.Fill(color.White)
 	option := ebiten.DrawImageOptions{}
 	for _, boid := range sim.population {
-		theta := v.Angle(boid.Velocity.X, boid.Velocity.Y)
+		theta := v.Angle(boid.Vel.X, boid.Vel.Y)
 		option.GeoM.Reset()
 		option.GeoM.Rotate(theta)
-		option.GeoM.Translate(boid.Position.X, boid.Position.Y)
+		option.GeoM.Translate(boid.Pos.X, boid.Pos.Y)
 		screen.DrawImage(sim.image, &option)
 	}
 }
@@ -61,13 +63,13 @@ func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
 	w, h := sim.image.Size()
-	boid := b.Boid{
-		ImageWidth:   w,
-		ImageHeight:  h,
-		SightDis:     w,
-		Position:     &v.Vector2D{screenWidth / 2, screenHeight / 2},
-		Velocity:     &v.Vector2D{1, 3},
-		Acceleration: &v.Vector2D{0, 0},
+	boid := b.Arrow{
+		ImageWidth:  w,
+		ImageHeight: h,
+		SightDis:    w,
+		Pos:         &v.Vector2D{screenWidth / 2, screenHeight / 2},
+		Vel:         &v.Vector2D{1, 3},
+		Accel:       &v.Vector2D{0, 0},
 	}
 	sim.population = append(sim.population, &boid)
 	if err := ebiten.RunGame(&sim); err != nil {
