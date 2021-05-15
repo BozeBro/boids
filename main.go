@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	screenWidth  = 1000
-	screenHeight = 1000
+	screenWidth  = 500
+	screenHeight = 500
 )
 
 func makeImage(path string) *ebiten.Image {
@@ -25,19 +25,12 @@ func makeImage(path string) *ebiten.Image {
 }
 
 type Sim struct {
-	image      *ebiten.Image
-	population []*b.Arrow
+	population []b.Boid
 }
 
 func (sim *Sim) Update() error {
 	for _, object := range sim.population {
-		//object.AvoidWalls(float64(screenWidth), float64(screenHeight))
-		object.Pos.X += object.Vel.X
-		object.Pos.Y += object.Vel.Y
-		object.Vel.X += object.Accel.X
-		object.Vel.Y += object.Accel.Y
-		object.Pos.X = b.Teleport(object.Pos.X, screenWidth)
-		object.Pos.Y = b.Teleport(object.Pos.Y, screenHeight)
+		object.Update(screenWidth, screenHeight)
 	}
 	return nil
 }
@@ -46,11 +39,7 @@ func (sim *Sim) Draw(screen *ebiten.Image) {
 	screen.Fill(color.White)
 	option := ebiten.DrawImageOptions{}
 	for _, boid := range sim.population {
-		theta := v.Angle(boid.Vel.X, boid.Vel.Y)
-		option.GeoM.Reset()
-		option.GeoM.Rotate(theta)
-		option.GeoM.Translate(boid.Pos.X, boid.Pos.Y)
-		screen.DrawImage(sim.image, &option)
+		boid.Draw(screen, option)
 	}
 }
 
@@ -59,19 +48,29 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	sim := Sim{image: makeImage("images/arrow.png")}
+	sim := Sim{}
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
-	w, h := sim.image.Size()
+	image := makeImage("images/arrowV2.png")
+	w, h := image.Size()
 	boid := b.Arrow{
 		ImageWidth:  w,
 		ImageHeight: h,
 		SightDis:    w,
-		Pos:         &v.Vector2D{screenWidth / 2, screenHeight / 2},
-		Vel:         &v.Vector2D{1, 3},
-		Accel:       &v.Vector2D{0, 0},
+		Pos:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
+		Vel:         &v.Vector2D{X: 3, Y: 1},
+		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
-	sim.population = append(sim.population, &boid)
+	sq := b.Square{
+		Image:       image,
+		ImageWidth:  boid.ImageWidth,
+		ImageHeight: boid.ImageHeight,
+		SightDis:    3,
+		Pos:         boid.Pos,
+		Vel:         boid.Vel,
+		Accel:       boid.Accel,
+	}
+	sim.population = append(sim.population, &boid, &sq)
 	if err := ebiten.RunGame(&sim); err != nil {
 		log.Fatal(err)
 	}
