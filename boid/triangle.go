@@ -2,6 +2,7 @@ package boid
 
 import (
 	"image/color"
+	"log"
 
 	v "github.com/BozeBro/boids/vector"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -18,21 +19,47 @@ type Triangle struct {
 	Accel       *v.Vector2D
 }
 
+// Only change triangle's index when all of the points are off screen
+func (t *Triangle) offscreen(sx, sy float64) {
+	var counter int
+	vertex := []*v.Vector2D{t.Top, t.Left, t.Right}
+	// placeholder for new points
+	points := make([]*v.Vector2D, 3)
+	for index, vertex := range vertex {
+		points[index] = &v.Vector2D{
+			X: Teleport(vertex.X, sx),
+			Y: Teleport(vertex.Y, sy),
+		}
+		if vertex.X < 0 || vertex.X > sx || vertex.Y < 0 || vertex.Y > sy {
+			counter++
+		}
+	}
+	if counter == 3 {
+		for index, vertex := range vertex {
+			vertex.X = points[index].X
+			vertex.Y = points[index].Y
+		}
+	}
+}
 func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 	for _, point := range points {
-		point.X += vector.X
-		point.Y += vector.Y
-		//point.X = Teleport(point.X, vector.X)
-		//point.Y = Teleport(point.Y, vector.Y)
+		point.Add(vector)
 	}
 }
 func (t *Triangle) Update(sx, sy float64) {
 	t.Add(*t.Vel, t.Top, t.Left, t.Right)
 	t.Add(*t.Accel, t.Vel)
+	t.offscreen(sx, sy)
 }
-
 func (t *Triangle) Draw(screen *ebiten.Image) {
 	option := &ebiten.DrawTrianglesOptions{}
+	log.Println("Before rotate", t.Top, t.Left, t.Right)
+	if t.Vel.X != 0 || t.Vel.Y != 0 {
+		theta := -1 * v.Angle(t.Vel.X, t.Vel.Y)
+		log.Println(theta)
+		v.RotatePoints(theta, t.Top, t.Left, t.Right)
+	}
+	log.Println("After rotate", t.Top, t.Left, t.Right)
 	triangleIm := ebiten.NewImage(t.ImageWidth, t.ImageWidth)
 	triangleIm.Fill(color.RGBA{255, 255, 255, 1})
 	vertex := makeVertex(*t.Top, *t.Left, *t.Right)
@@ -40,10 +67,11 @@ func (t *Triangle) Draw(screen *ebiten.Image) {
 	// Draw the triangleIm onto the screen
 	screen.DrawTriangles(vertex, []uint16{0, 1, 2}, triangleIm, option)
 }
-func makeVertex(vectors ...v.Vector2D) []ebiten.Vertex {
-	var vertex []ebiten.Vertex
+
+func makeVertex(vectors ...v.Vector2D) (vertex []ebiten.Vertex) {
 	for index, vector := range vectors {
 		var r, g, b float32
+		// make rainbow-ish triangle
 		switch index {
 		case 0:
 			r++
@@ -58,7 +86,7 @@ func makeVertex(vectors ...v.Vector2D) []ebiten.Vertex {
 			ColorR: r,
 			ColorG: g,
 			ColorB: b,
-			ColorA: 255,
+			ColorA: 254,
 		}
 		vertex = append(vertex, point)
 	}

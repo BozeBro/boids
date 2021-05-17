@@ -12,8 +12,8 @@ import (
 )
 
 const (
-	screenWidth  = 500
-	screenHeight = 500
+	screenWidth  = 1000
+	screenHeight = 1000
 )
 
 func makeImage(path string) *ebiten.Image {
@@ -57,10 +57,9 @@ func main() {
 		ImageHeight: h,
 		SightDis:    w,
 		Pos:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 0, Y: 0},
+		Vel:         &v.Vector2D{X: 1, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
-
 	sq := &b.Square{
 		ImageWidth:  boid.ImageWidth,
 		ImageHeight: boid.ImageHeight,
@@ -70,11 +69,11 @@ func main() {
 		Accel:       boid.Accel,
 	}
 	tri := &b.Triangle{
-		ImageWidth:  w,
-		ImageHeight: h,
+		ImageWidth:  w / 4,
+		ImageHeight: h / 2,
 		SightDis:    3,
 		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 1, Y: 1},
+		Vel:         &v.Vector2D{X: 0.5, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
 	tri.Left = &v.Vector2D{
@@ -86,7 +85,8 @@ func main() {
 		Y: tri.Top.Y + float64(tri.ImageHeight),
 	}
 	sim := &Sim{}
-	sim.population = append(sim.population, tri, sq)
+	sq.SightDis = 3
+	sim.population = append(sim.population, tri)
 	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
 	}

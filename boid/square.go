@@ -17,17 +17,18 @@ type Square struct {
 }
 
 func (s *Square) Update(sx, sy float64) {
-	s.Pos.X += s.Vel.X
-	s.Pos.Y += s.Vel.Y
-	s.Vel.X += s.Accel.X
-	s.Vel.Y += s.Accel.Y
+	s.Pos.Add(*s.Vel)
+	s.Vel.Add(*s.Accel)
 	s.Pos.X = Teleport(s.Pos.X, sx)
 	s.Pos.Y = Teleport(s.Pos.Y, sy)
 }
 func (s *Square) Draw(screen *ebiten.Image) {
-	theta := v.Angle(s.Vel.X, s.Vel.Y)
 	option := &ebiten.DrawImageOptions{}
-	option.GeoM.Rotate(theta)
+	// Don't rotate if vectors are nil
+	if s.Vel.X != 0 || s.Vel.Y != 0 {
+		theta := v.Angle(s.Vel.X, s.Vel.Y)
+		option.GeoM.Rotate(theta)
+	}
 	option.GeoM.Translate(s.Pos.X, s.Pos.Y)
 	sq := ebiten.NewImage(2, 2)
 	sq.Fill(color.RGBA{255, 0, 0, 255})

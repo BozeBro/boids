@@ -29,23 +29,20 @@ func Teleport(pos, edge float64) float64 {
 	return pos
 }
 func (a *Arrow) Update(sx, sy float64) {
-	a.Pos.X += a.Vel.X
-	a.Pos.Y += a.Vel.Y
-	a.Vel.X += a.Accel.X
-	a.Vel.Y += a.Accel.Y
+	a.Pos.Add(*a.Vel)
+	a.Vel.Add(*a.Accel)
 	a.Pos.X = Teleport(a.Pos.X, sx)
 	a.Pos.Y = Teleport(a.Pos.Y, sy)
 }
-func (a *Arrow) SupplyImage() *ebiten.Image {
-	return nil
-}
-
 func (a *Arrow) Draw(screen *ebiten.Image) {
 	option := &ebiten.DrawImageOptions{}
-	theta := v.Angle(a.Vel.X, a.Vel.Y)
 	// Do this translation so PosX, PosY is near the center of the arrow.
 	option.GeoM.Translate(-1*float64(a.ImageWidth)/2, -1*float64(a.ImageHeight)/2)
-	option.GeoM.Rotate(theta)
+	// Don't rotate if vectors are nil
+	if a.Vel.X != 0 || a.Vel.Y != 0 {
+		theta := v.Angle(a.Vel.X, a.Vel.Y)
+		option.GeoM.Rotate(theta)
+	}
 	option.GeoM.Translate(a.Pos.X, a.Pos.Y)
 	screen.DrawImage(a.Image, option)
 }
