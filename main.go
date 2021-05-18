@@ -73,7 +73,7 @@ func main() {
 		ImageHeight: 25,
 		SightDis:    3,
 		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 2, Y: 1},
+		Vel:         &v.Vector2D{X: 10, Y: 1},
 		Accel:       &v.Vector2D{X: -1, Y: 1},
 	}
 	tri.Left = &v.Vector2D{

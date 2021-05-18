@@ -48,14 +48,14 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 	}
 }
 func (t *Triangle) Update(sx, sy float64) {
-	if theta := v.RegAngle(*t.Accel); theta != t.VelTheta {
-		_ = v.RotatePoints(theta-t.VelTheta, *t.Vel, t.Vel)
-		t.VelTheta = theta
-	}
-	if theta := v.RegAngle(*t.Vel); theta != t.Theta {
-		_ = v.RotatePoints(theta-t.Theta, *t.Top, t.Left, t.Right)
-		t.Theta = theta
-	}
+	velTheta := v.RegAngle(*t.Accel)
+	_ = v.RotatePoints(velTheta-t.VelTheta, *t.Vel, t.Vel)
+	t.VelTheta = velTheta
+
+	theta := v.RegAngle(*t.Vel)
+	_ = v.RotatePoints(theta-t.Theta, *t.Top, t.Left, t.Right)
+	t.Theta = theta
+
 	t.Add(*t.Accel, t.Vel)
 	t.Add(*t.Vel, t.Top, t.Left, t.Right)
 	t.offscreen(sx, sy)
