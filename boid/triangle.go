@@ -12,6 +12,7 @@ type Triangle struct {
 	ImageHeight int
 	SightDis    int
 	Theta       float64
+	VelTheta    float64
 	Top         *v.Vector2D // Vertex of the initial top point
 	Left        *v.Vector2D // Vertex of the initial left point
 	Right       *v.Vector2D // Vertex of the initial right point
@@ -47,13 +48,15 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 	}
 }
 func (t *Triangle) Update(sx, sy float64) {
-	t.Add(*t.Accel, t.Vel)
-	//_ = v.RotatePoints(0, t.Top.X, t.Top.Y, t.Top, t.Left, t.Right)
-	//theta := v.Angle(t.Vel.X, t.Vel.Y)
-	if theta := v.RegAngle(t.Vel.X, t.Vel.Y); theta != t.Theta {
-		_ = v.RotatePoints(theta, t.Top.X, t.Top.Y, t.Top, t.Left, t.Right)
+	if theta := v.RegAngle(*t.Accel); theta != t.VelTheta {
+		_ = v.RotatePoints(theta-t.VelTheta, *t.Vel, t.Vel)
+		t.VelTheta = theta
+	}
+	if theta := v.RegAngle(*t.Vel); theta != t.Theta {
+		_ = v.RotatePoints(theta-t.Theta, *t.Top, t.Left, t.Right)
 		t.Theta = theta
 	}
+	t.Add(*t.Accel, t.Vel)
 	t.Add(*t.Vel, t.Top, t.Left, t.Right)
 	t.offscreen(sx, sy)
 }

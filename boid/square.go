@@ -26,7 +26,7 @@ func (s *Square) Draw(screen *ebiten.Image) {
 	option := &ebiten.DrawImageOptions{}
 	// Don't rotate if vectors are nil
 	if s.Vel.X != 0 || s.Vel.Y != 0 {
-		theta := v.Angle(s.Vel.X, s.Vel.Y)
+		theta := v.Angle(*s.Vel)
 		option.GeoM.Rotate(theta)
 	}
 	option.GeoM.Translate(s.Pos.X, s.Pos.Y)

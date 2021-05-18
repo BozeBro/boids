@@ -40,7 +40,7 @@ func (a *Arrow) Draw(screen *ebiten.Image) {
 	option.GeoM.Translate(-1*float64(a.ImageWidth)/2, -1*float64(a.ImageHeight)/2)
 	// Don't rotate if vectors are nil
 	if a.Vel.X != 0 || a.Vel.Y != 0 {
-		theta := v.Angle(a.Vel.X, a.Vel.Y)
+		theta := v.Angle(*a.Vel)
 		option.GeoM.Rotate(theta)
 	}
 	option.GeoM.Translate(a.Pos.X, a.Pos.Y)
