@@ -69,20 +69,20 @@ func main() {
 		Accel:       boid.Accel,
 	}
 	tri := &b.Triangle{
-		ImageWidth:  w / 4,
-		ImageHeight: h / 2,
+		ImageWidth:  50,
+		ImageHeight: 25,
 		SightDis:    3,
 		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 0.5, Y: 0},
-		Accel:       &v.Vector2D{X: 0, Y: 0},
+		Vel:         &v.Vector2D{X: -1, Y: 0},
+		Accel:       &v.Vector2D{X: 1 / 2, Y: 1},
 	}
 	tri.Left = &v.Vector2D{
-		X: tri.Top.X - float64(tri.ImageWidth)/2,
-		Y: tri.Top.Y + float64(tri.ImageHeight),
+		X: tri.Top.X - float64(tri.ImageWidth),
+		Y: tri.Top.Y - float64(tri.ImageHeight)/2,
 	}
 	tri.Right = &v.Vector2D{
-		X: tri.Top.X + float64(tri.ImageWidth)/2,
-		Y: tri.Top.Y + float64(tri.ImageHeight),
+		X: tri.Top.X - float64(tri.ImageWidth),
+		Y: tri.Top.Y + float64(tri.ImageHeight)/2,
 	}
 	sim := &Sim{}
 	sq.SightDis = 3

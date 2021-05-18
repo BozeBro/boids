@@ -2,7 +2,6 @@ package boid
 
 import (
 	"image/color"
-	"log"
 
 	v "github.com/BozeBro/boids/vector"
 	"github.com/hajimehoshi/ebiten/v2"
@@ -12,6 +11,7 @@ type Triangle struct {
 	ImageWidth  int
 	ImageHeight int
 	SightDis    int
+	Theta       float64
 	Top         *v.Vector2D // Vertex of the initial top point
 	Left        *v.Vector2D // Vertex of the initial left point
 	Right       *v.Vector2D // Vertex of the initial right point
@@ -47,19 +47,18 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 	}
 }
 func (t *Triangle) Update(sx, sy float64) {
-	t.Add(*t.Vel, t.Top, t.Left, t.Right)
 	t.Add(*t.Accel, t.Vel)
+	//_ = v.RotatePoints(0, t.Top.X, t.Top.Y, t.Top, t.Left, t.Right)
+	//theta := v.Angle(t.Vel.X, t.Vel.Y)
+	if theta := v.RegAngle(t.Vel.X, t.Vel.Y); theta != t.Theta {
+		_ = v.RotatePoints(theta, t.Top.X, t.Top.Y, t.Top, t.Left, t.Right)
+		t.Theta = theta
+	}
+	t.Add(*t.Vel, t.Top, t.Left, t.Right)
 	t.offscreen(sx, sy)
 }
 func (t *Triangle) Draw(screen *ebiten.Image) {
 	option := &ebiten.DrawTrianglesOptions{}
-	log.Println("Before rotate", t.Top, t.Left, t.Right)
-	if t.Vel.X != 0 || t.Vel.Y != 0 {
-		theta := -1 * v.Angle(t.Vel.X, t.Vel.Y)
-		log.Println(theta)
-		v.RotatePoints(theta, t.Top, t.Left, t.Right)
-	}
-	log.Println("After rotate", t.Top, t.Left, t.Right)
 	triangleIm := ebiten.NewImage(t.ImageWidth, t.ImageWidth)
 	triangleIm.Fill(color.RGBA{255, 255, 255, 1})
 	vertex := makeVertex(*t.Top, *t.Left, *t.Right)
