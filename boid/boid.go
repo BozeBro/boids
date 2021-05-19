@@ -19,6 +19,7 @@ type Arrow struct {
 	Image       *ebiten.Image
 }
 
+// Teleport places point on opposite end of the screen when offscreen.
 func Teleport(pos, edge float64) float64 {
 	if pos < 0 {
 		pos = edge

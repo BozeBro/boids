@@ -31,7 +31,7 @@ func (s *Square) Draw(screen *ebiten.Image) {
 	}
 	option.GeoM.Translate(s.Pos.X, s.Pos.Y)
 	sq := ebiten.NewImage(2, 2)
-	sq.Fill(color.RGBA{255, 0, 0, 255})
+	sq.Fill(color.RGBA{255, 0, 0, 254})
 	screen.DrawImage(sq, option)
 }
 
