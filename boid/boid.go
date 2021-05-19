@@ -6,7 +6,6 @@ import (
 )
 
 type Boid interface {
-	// screen sizes
 	Update(float64, float64)
 	Draw(*ebiten.Image)
 }

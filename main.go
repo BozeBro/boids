@@ -16,7 +16,8 @@ const (
 	screenHeight = 1000
 )
 
-func makeImage(path string) *ebiten.Image {
+// loadImage loads an image from a filepath specified
+func loadImage(path string) *ebiten.Image {
 	loadedImage, _, err := ebitenutil.NewImageFromFile(path)
 	if err != nil {
 		log.Fatal(err)
@@ -24,6 +25,8 @@ func makeImage(path string) *ebiten.Image {
 	return loadedImage
 }
 
+// Satisfies the ebiten.Game interface.
+// requires  Update() error,  Draw(screen *ebiten.Image), Layout(outsideWidth, outsideHeight int) (int, int)
 type Sim struct {
 	population []b.Boid
 }
@@ -36,7 +39,7 @@ func (sim *Sim) Update() error {
 }
 
 func (sim *Sim) Draw(screen *ebiten.Image) {
-	screen.Fill(color.White)
+	screen.Fill(color.Black)
 	for _, boid := range sim.population {
 		boid.Draw(screen)
 	}
@@ -49,7 +52,7 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
-	image := makeImage("images/arrow.png")
+	image := loadImage("images/arrow.png")
 	w, h := image.Size()
 	boid := &b.Arrow{
 		Image:       image,
@@ -60,6 +63,7 @@ func main() {
 		Vel:         &v.Vector2D{X: 1, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
+	// Used to visualize the center of the boid image.
 	sq := &b.Square{
 		ImageWidth:  boid.ImageWidth,
 		ImageHeight: boid.ImageHeight,
@@ -68,13 +72,14 @@ func main() {
 		Vel:         boid.Vel,
 		Accel:       boid.Accel,
 	}
+	sq.SightDis = 3
 	tri := &b.Triangle{
 		ImageWidth:  50,
 		ImageHeight: 25,
 		SightDis:    3,
 		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 10, Y: 1},
-		Accel:       &v.Vector2D{X: -1, Y: 1},
+		Vel:         &v.Vector2D{X: 0, Y: 1},
+		Accel:       &v.Vector2D{X: 0, Y: -.01},
 	}
 	tri.Left = &v.Vector2D{
 		X: tri.Top.X - float64(tri.ImageWidth),
@@ -84,8 +89,19 @@ func main() {
 		X: tri.Top.X - float64(tri.ImageWidth),
 		Y: tri.Top.Y + float64(tri.ImageHeight)/2,
 	}
+	/*
+			The triangle is positioned sideways like this.
+			Angle of 0 points in the same direction as the top of the triangle.
+			|\
+			| \
+			|  \
+			|   \
+			|   /
+			|  /
+			| /
+		    |/
+	*/
 	sim := &Sim{}
-	sq.SightDis = 3
 	sim.population = append(sim.population, tri)
 	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
