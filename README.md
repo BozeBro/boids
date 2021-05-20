@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ## Boids with Go and Ebiten
 
 > My blog post: [Boids in WebAssembly Using Go](https://healeycodes.com/boids-flocking-simulation/)
@@ -42,3 +43,7 @@ The simulation can be viewed in a web browser via `index.html`. To get this work
 <br>
 
 License: MIT.
+=======
+# boids
+Beginning of my project on the concept of boids / flocking
+>>>>>>> e2f2380 (Initial commit)
