@@ -73,22 +73,6 @@ func main() {
 		Accel:       boid.Accel,
 	}
 	sq.SightDis = 3
-	tri := &b.Triangle{
-		ImageWidth:  50,
-		ImageHeight: 25,
-		SightDis:    3,
-		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
-		Vel:         &v.Vector2D{X: 1, Y: 1},
-		Accel:       &v.Vector2D{X: 0, Y: 0},
-	}
-	tri.Left = &v.Vector2D{
-		X: tri.Top.X - float64(tri.ImageWidth),
-		Y: tri.Top.Y - float64(tri.ImageHeight)/2,
-	}
-	tri.Right = &v.Vector2D{
-		X: tri.Top.X - float64(tri.ImageWidth),
-		Y: tri.Top.Y + float64(tri.ImageHeight)/2,
-	}
 	/*
 			The triangle is positioned sideways like this.
 			Angle of 0 points in the same direction as the top of the triangle.
@@ -101,24 +85,28 @@ func main() {
 			| /
 		    |/
 	*/
-	tri2 := &b.Triangle{
+	tri := b.Triangle{
 		ImageWidth:  50,
 		ImageHeight: 25,
 		SightDis:    3,
-		Top:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
+		Vel:         &v.Vector2D{X: 1, Y: 1},
+		Accel:       &v.Vector2D{X: 0, Y: 0},
+	}
+	tri.TrianglePointsMake(screenWidth/2, screenHeight/2)
+	tri2 := b.Triangle{
+		ImageWidth:  75,
+		ImageHeight: 15,
+		SightDis:    3,
 		Vel:         &v.Vector2D{X: -3 / 2, Y: -1.75},
 		Accel:       &v.Vector2D{X: 0.5, Y: .1},
 	}
-	tri2.Left = &v.Vector2D{
-		X: tri.Top.X - float64(tri.ImageWidth),
-		Y: tri.Top.Y - float64(tri.ImageHeight)/2,
+	tri2.TrianglePointsMake(screenWidth/2, screenHeight/2)
+	sim := &Sim{
+		population: []b.Boid{
+			&tri,
+			&tri2,
+		},
 	}
-	tri2.Right = &v.Vector2D{
-		X: tri.Top.X - float64(tri.ImageWidth),
-		Y: tri.Top.Y + float64(tri.ImageHeight)/2,
-	}
-	sim := &Sim{}
-	sim.population = append(sim.population, tri, tri2)
 	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
 	}

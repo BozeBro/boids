@@ -22,6 +22,20 @@ type Triangle struct {
 	Accel       *v.Vector2D
 }
 
+// TrianglePointsMake uses (x, y) as coordinates of the top.
+// Finds the Right and Left Point using ImageWidth, ImageHeight, and (x, y).
+func (t *Triangle) TrianglePointsMake(x, y float64) {
+	t.Top = &v.Vector2D{X: x, Y: y}
+	t.Left = &v.Vector2D{
+		X: x - float64(t.ImageWidth),
+		Y: y - float64(t.ImageHeight)/2,
+	}
+	t.Right = &v.Vector2D{
+		X: x - float64(t.ImageWidth),
+		Y: y + float64(t.ImageHeight)/2,
+	}
+}
+
 // Only change triangle's location when all of the points are off screen
 func (t *Triangle) offscreen(sx, sy float64) {
 	var (
