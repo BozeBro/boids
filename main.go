@@ -4,7 +4,6 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
-	"math"
 	"math/rand"
 
 	b "github.com/BozeBro/boids/boid"
@@ -88,7 +87,7 @@ func main() {
 			| /
 		    |/
 	*/
-	tri := b.Triangle{
+	/* tri := b.Triangle{
 		ImageWidth:  50,
 		ImageHeight: 25,
 		SightDis:    50,
@@ -104,32 +103,34 @@ func main() {
 		Vel:         &v.Vector2D{X: -3 / 2, Y: -1.75},
 		Accel:       &v.Vector2D{X: 0.5, Y: .1},
 	}
-	tri2.TrianglePointsMake(screenWidth/2, screenHeight/2)
+	tri2.TrianglePointsMake(screenWidth/2, screenHeight/2) */
 	sim := &Sim{
-		population: []b.Boid{
-			&tri,
-			&tri2,
-		},
+		population: []b.Boid{},
 	}
-	for i := 0; i < 15; i++ {
-		//sx := rand.Float64() * screenWidth
-		//sy := rand.Float64() * screenHeight
-		numx := rand.Intn(1)
-		numy := rand.Intn(1)
+	for i := 0; i < 50; i++ {
+		sx := rand.Float64() * screenWidth
+		sy := rand.Float64() * screenHeight
+		nx, ny := 1., 1.
+		if rand.Intn(1) != 1 {
+			nx *= -1.
+		}
+		if rand.Intn(1) != 1 {
+			ny *= -1.
+		}
 		velx := rand.Float64() * 5
 		vely := rand.Float64() * 5
-		obj := &b.Triangle{
-			ImageWidth:  50,
-			ImageHeight: 25,
-			SightDis:    200,
-			SightAngle:  math.Pi / 3,
+		obj := &b.Arrow{
+			Image:       image,
+			ImageWidth:  w,
+			ImageHeight: h,
+			SightDis:    50,
+			Pos:         &v.Vector2D{sx, sy},
 			Vel: &v.Vector2D{
-				X: velx * math.Pow(-1, float64(1-numx)),
-				Y: vely * math.Pow(-1, float64(1-numy)),
+				X: velx * nx,
+				Y: vely * ny,
 			},
-			Accel: &v.Vector2D{0, 0},
+			Accel: &v.Vector2D{},
 		}
-		obj.TrianglePointsMake(screenWidth, screenHeight)
 		sim.population = append(sim.population, obj)
 	}
 	if err := ebiten.RunGame(sim); err != nil {

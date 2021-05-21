@@ -78,7 +78,22 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 
 // Update gives new values to the vertices and velocity vectors.
 func (t *Triangle) Update(sx, sy float64, population []Boid) {
+	t.Accel = &v.Vector2D{}
 	t.Accel.Add(t.align(population))
+	maxi := 7.
+	if t.Vel.X > maxi {
+		t.Vel.X = maxi
+	} else if t.Vel.X < -maxi {
+		t.Vel.X = -maxi
+	}
+	if t.Vel.Y > maxi {
+		t.Vel.Y = maxi
+	} else if t.Vel.Y < -maxi {
+		t.Vel.Y = -maxi
+	}
+	// Add the vectors
+	t.Add(*t.Vel, t.Top, t.Left, t.Right)
+	t.Add(*t.Accel, t.Vel)
 	// rotate points
 	velTheta := v.AngleReg(*t.Accel)
 	v.RotatePoints(velTheta-t.VelTheta, *t.Vel, t.Vel)
@@ -87,9 +102,6 @@ func (t *Triangle) Update(sx, sy float64, population []Boid) {
 	theta := v.AngleReg(*t.Vel)
 	v.RotatePoints(theta-t.Theta, *t.Top, t.Left, t.Right)
 	t.Theta = theta
-	// Add the vectors
-	t.Add(*t.Vel, t.Top, t.Left, t.Right)
-	//t.Add(*t.Accel, t.Vel)
 	t.offscreen(sx, sy)
 }
 func (t *Triangle) Draw(screen *ebiten.Image) {
@@ -143,8 +155,7 @@ func (t *Triangle) align(population []Boid) v.Vector2D {
 		}
 	}
 	if counter > 0 {
-		floated := float64(counter)
-		steering.Divide(v.Vector2D{X: floated, Y: floated})
+		steering.Divide(float64(counter))
 		steering.Subtract(*t.Vel)
 	}
 	return steering
