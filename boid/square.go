@@ -16,7 +16,7 @@ type Square struct {
 	Accel       *v.Vector2D
 }
 
-func (s *Square) Update(sx, sy float64) {
+func (s *Square) Update(sx, sy float64, population []Boid) {
 	s.Pos.Add(*s.Vel)
 	s.Vel.Add(*s.Accel)
 	s.Pos.X = Teleport(s.Pos.X, sx)
@@ -33,6 +33,13 @@ func (s *Square) Draw(screen *ebiten.Image) {
 	sq := ebiten.NewImage(2, 2)
 	sq.Fill(color.RGBA{255, 0, 0, 254})
 	screen.DrawImage(sq, option)
+}
+
+func (s *Square) Coords() v.Vector2D {
+	return *s.Pos
+}
+func (s *Square) Velocity() v.Vector2D {
+	return *s.Vel
 }
 
 /* func (s *Square) Trig() (x, y float64) {

@@ -32,6 +32,11 @@ func (v *Vector2D) Subtract(v2 Vector2D) {
 	v.Y -= v2.Y
 }
 
+func (v *Vector2D) Divide(v2 Vector2D) {
+	v.X /= v2.X
+	v.Y /= v2.Y
+}
+
 // RotatePoints Rotates points by an angle theta about an origin point
 // Rotates in-place
 func RotatePoints(theta float64, origin Vector2D, points ...*Vector2D) {
@@ -76,4 +81,8 @@ func IsIntersect(a, b, c, d Vector2D) (t, u float64, intersected bool) {
 // Will return non-valid numbers if t vector was invalid from IsIntersect
 func IntersectionPoint(a, b Vector2D, t float64) (x, y float64) {
 	return a.X + t*(b.X-a.X), a.Y + t*(b.Y-a.Y)
+}
+
+func Distance(v, v2 Vector2D) float64 {
+	return math.Sqrt(math.Pow(v2.X-v.X, 2) + math.Pow(v2.Y-v.Y, 2))
 }

@@ -12,6 +12,7 @@ import (
 type Triangle struct {
 	ImageWidth  int
 	ImageHeight int
+	SightAngle  float64
 	SightDis    int         // Distance that boid can see in front of it
 	Theta       float64     // Angle that the Velocity vectors create.
 	VelTheta    float64     // Angle that the Acceleration vectors create.
@@ -76,7 +77,9 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 }
 
 // Update gives new values to the vertices and velocity vectors.
-func (t *Triangle) Update(sx, sy float64) {
+func (t *Triangle) Update(sx, sy float64, population []Boid) {
+	t.Accel.Add(t.align(population))
+	// rotate points
 	velTheta := v.AngleReg(*t.Accel)
 	v.RotatePoints(velTheta-t.VelTheta, *t.Vel, t.Vel)
 	t.VelTheta = velTheta
@@ -84,9 +87,9 @@ func (t *Triangle) Update(sx, sy float64) {
 	theta := v.AngleReg(*t.Vel)
 	v.RotatePoints(theta-t.Theta, *t.Top, t.Left, t.Right)
 	t.Theta = theta
-
-	t.Add(*t.Accel, t.Vel)
+	// Add the vectors
 	t.Add(*t.Vel, t.Top, t.Left, t.Right)
+	//t.Add(*t.Accel, t.Vel)
 	t.offscreen(sx, sy)
 }
 func (t *Triangle) Draw(screen *ebiten.Image) {
@@ -127,4 +130,28 @@ func makeVertex(vectors ...v.Vector2D) (vertex []ebiten.Vertex) {
 		vertex = append(vertex, point)
 	}
 	return vertex
+}
+func (t *Triangle) align(population []Boid) v.Vector2D {
+	var counter int
+	steering := v.Vector2D{X: 0, Y: 0}
+	for _, boid := range population {
+		pos := boid.Coords()
+		d := v.Distance(*t.Top, pos)
+		if boid != t && d <= float64(t.SightDis) {
+			counter++
+			steering.Add(boid.Velocity())
+		}
+	}
+	if counter > 0 {
+		floated := float64(counter)
+		steering.Divide(v.Vector2D{X: floated, Y: floated})
+		steering.Subtract(*t.Vel)
+	}
+	return steering
+}
+func (t *Triangle) Coords() v.Vector2D {
+	return *t.Top
+}
+func (t *Triangle) Velocity() v.Vector2D {
+	return *t.Vel
 }

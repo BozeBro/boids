@@ -6,8 +6,10 @@ import (
 )
 
 type Boid interface {
-	Update(float64, float64)
+	Update(float64, float64, []Boid)
 	Draw(*ebiten.Image)
+	Coords() v.Vector2D
+	Velocity() v.Vector2D
 }
 type Arrow struct {
 	ImageWidth  int
@@ -28,7 +30,7 @@ func Teleport(pos, edge float64) float64 {
 	}
 	return pos
 }
-func (a *Arrow) Update(sx, sy float64) {
+func (a *Arrow) Update(sx, sy float64, population []Boid) {
 	a.Pos.Add(*a.Vel)
 	a.Vel.Add(*a.Accel)
 	a.Pos.X = Teleport(a.Pos.X, sx)
@@ -45,4 +47,12 @@ func (a *Arrow) Draw(screen *ebiten.Image) {
 	}
 	option.GeoM.Translate(a.Pos.X, a.Pos.Y)
 	screen.DrawImage(a.Image, option)
+}
+
+func (a *Arrow) Coords() v.Vector2D {
+	return *a.Pos
+}
+
+func (a *Arrow) Velocity() v.Vector2D {
+	return *a.Vel
 }

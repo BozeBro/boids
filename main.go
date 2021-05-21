@@ -4,6 +4,8 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"math"
+	"math/rand"
 
 	b "github.com/BozeBro/boids/boid"
 	v "github.com/BozeBro/boids/vector"
@@ -26,14 +28,14 @@ func loadImage(path string) *ebiten.Image {
 }
 
 // Satisfies the ebiten.Game interface.
-// requires  Update() error,  Draw(screen *ebiten.Image), Layout(outsideWidth, outsideHeight int) (int, int)
+// requires Update() error,  Draw(screen *ebiten.Image), Layout(outsideWidth, outsideHeight int) (int, int)
 type Sim struct {
 	population []b.Boid
 }
 
 func (sim *Sim) Update() error {
 	for _, object := range sim.population {
-		object.Update(screenWidth, screenHeight)
+		object.Update(screenWidth, screenHeight, sim.population)
 	}
 	return nil
 }
@@ -50,6 +52,7 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
+	rand.Seed(101)
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
 	image := loadImage("images/arrow.png")
@@ -88,7 +91,8 @@ func main() {
 	tri := b.Triangle{
 		ImageWidth:  50,
 		ImageHeight: 25,
-		SightDis:    3,
+		SightDis:    50,
+		SightAngle:  math.Pi / 3,
 		Vel:         &v.Vector2D{X: 1, Y: 1},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
 	}
@@ -96,7 +100,7 @@ func main() {
 	tri2 := b.Triangle{
 		ImageWidth:  75,
 		ImageHeight: 15,
-		SightDis:    3,
+		SightDis:    50,
 		Vel:         &v.Vector2D{X: -3 / 2, Y: -1.75},
 		Accel:       &v.Vector2D{X: 0.5, Y: .1},
 	}
@@ -106,6 +110,27 @@ func main() {
 			&tri,
 			&tri2,
 		},
+	}
+	for i := 0; i < 15; i++ {
+		//sx := rand.Float64() * screenWidth
+		//sy := rand.Float64() * screenHeight
+		numx := rand.Intn(1)
+		numy := rand.Intn(1)
+		velx := rand.Float64() * 5
+		vely := rand.Float64() * 5
+		obj := &b.Triangle{
+			ImageWidth:  50,
+			ImageHeight: 25,
+			SightDis:    200,
+			SightAngle:  math.Pi / 3,
+			Vel: &v.Vector2D{
+				X: velx * math.Pow(-1, float64(1-numx)),
+				Y: vely * math.Pow(-1, float64(1-numy)),
+			},
+			Accel: &v.Vector2D{0, 0},
+		}
+		obj.TrianglePointsMake(screenWidth, screenHeight)
+		sim.population = append(sim.population, obj)
 	}
 	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
