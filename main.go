@@ -4,7 +4,9 @@ import (
 	"image/color"
 	_ "image/png"
 	"log"
+	"math"
 	"math/rand"
+	"time"
 
 	b "github.com/BozeBro/boids/boid"
 	v "github.com/BozeBro/boids/vector"
@@ -51,16 +53,16 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	rand.Seed(101)
+	rand.Seed(time.Now().UTC().UnixNano())
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
-	image := loadImage("images/arrow.png")
+	image := loadImage("images/arrowV2.png")
 	w, h := image.Size()
 	boid := &b.Arrow{
 		Image:       image,
 		ImageWidth:  w,
 		ImageHeight: h,
-		SightDis:    w,
+		SightDis:    float64(w),
 		Pos:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
 		Vel:         &v.Vector2D{X: 1, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
@@ -107,23 +109,26 @@ func main() {
 	sim := &Sim{
 		population: []b.Boid{},
 	}
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 200; i++ {
 		sx := rand.Float64() * screenWidth
 		sy := rand.Float64() * screenHeight
 		nx, ny := 1., 1.
-		if rand.Intn(1) != 1 {
-			nx *= -1.
+		m := rand.Intn(2)
+		n := rand.Intn(2)
+		if m != 1 {
+			nx = -1.
 		}
-		if rand.Intn(1) != 1 {
-			ny *= -1.
+		if n != 1 {
+			ny = -1.
 		}
-		velx := rand.Float64() * 5
-		vely := rand.Float64() * 5
+		velx := rand.Float64() * 3
+		vely := rand.Float64() * 3
 		obj := &b.Arrow{
 			Image:       image,
 			ImageWidth:  w,
 			ImageHeight: h,
-			SightDis:    50,
+			SightDis:    float64(w) * 2,
+			SightAngle:  math.Pi * 3 / 4,
 			Pos:         &v.Vector2D{sx, sy},
 			Vel: &v.Vector2D{
 				X: velx * nx,
@@ -133,6 +138,7 @@ func main() {
 		}
 		sim.population = append(sim.population, obj)
 	}
+
 	if err := ebiten.RunGame(sim); err != nil {
 		log.Fatal(err)
 	}

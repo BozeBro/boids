@@ -63,6 +63,14 @@ func (v *Vector2D) Limit(max float64) {
 		v.Multiply(max)
 	}
 }
+func (v *Vector2D) Mini(max float64) {
+	magSq := v.MagnitudeSquared()
+	barrier := .30 * max * max
+	if magSq < barrier {
+		v.Divide(math.Sqrt(magSq))
+		v.Multiply(max * 1.5)
+	}
+}
 
 // RotatePoints Rotates points by an angle theta about an origin point
 // Rotates in-place
@@ -112,4 +120,16 @@ func IntersectionPoint(a, b Vector2D, t float64) (x, y float64) {
 
 func Distance(v, v2 Vector2D) float64 {
 	return math.Sqrt(math.Pow(v2.X-v.X, 2) + math.Pow(v2.Y-v.Y, 2))
+}
+
+func IsSeen(pos, newPos, otherPos *Vector2D) (cosAngle float64) {
+	var (
+		dx1 = newPos.X - pos.X
+		dy1 = newPos.Y - pos.Y
+		dx2 = otherPos.X - pos.X
+		dy2 = otherPos.Y - pos.Y
+	)
+	den := math.Sqrt(dx1*dx1+dy1*dy1) * math.Sqrt(dx2*dx2+dy2*dy2)
+	cosAngle = (dx1*dx2 + dy1*dy2) / den
+	return cosAngle
 }
