@@ -75,9 +75,12 @@ func (t *Triangle) Add(vector v.Vector2D, points ...*v.Vector2D) {
 		point.Add(vector)
 	}
 }
+func (t *Triangle) Apply(*v.Vector2D, *v.Vector2D) {
+
+}
 
 // Update gives new values to the vertices and velocity vectors.
-func (t *Triangle) Update(sx, sy float64, population []Boid) {
+func (t *Triangle) Update(sx, sy float64, population []Boid, index int, info chan *Data) {
 	t.Accel = &v.Vector2D{}
 	t.Accel.Add(t.align(population))
 	maxi := 7.

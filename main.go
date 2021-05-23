@@ -35,8 +35,19 @@ type Sim struct {
 }
 
 func (sim *Sim) Update() error {
-	for _, object := range sim.population {
-		object.Update(screenWidth, screenHeight, sim.population)
+	var counter int
+	finished := make(chan *b.Data)
+	length := len(sim.population)
+	for index, object := range sim.population {
+		go object.Update(screenWidth, screenHeight, sim.population, index, finished)
+	}
+	for {
+		waiting := <-finished
+		counter++
+		sim.population[waiting.Index].Apply(waiting.NewPos, waiting.NewVel)
+		if counter == length {
+			break
+		}
 	}
 	return nil
 }
@@ -56,7 +67,7 @@ func main() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
-	image := loadImage("images/arrowV2.png")
+	image := loadImage("images/boid.png")
 	w, h := image.Size()
 	boid := &b.Arrow{
 		Image:       image,
@@ -109,7 +120,7 @@ func main() {
 	sim := &Sim{
 		population: []b.Boid{},
 	}
-	for i := 0; i < 200; i++ {
+	for i := 0; i < 500; i++ {
 		sx := rand.Float64() * screenWidth
 		sy := rand.Float64() * screenHeight
 		nx, ny := 1., 1.
@@ -127,7 +138,7 @@ func main() {
 			Image:       image,
 			ImageWidth:  w,
 			ImageHeight: h,
-			SightDis:    float64(w) * 2,
+			SightDis:    float64(w),
 			SightAngle:  math.Pi * 3 / 4,
 			Pos:         &v.Vector2D{sx, sy},
 			Vel: &v.Vector2D{

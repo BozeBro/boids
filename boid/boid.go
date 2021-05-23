@@ -6,10 +6,17 @@ import (
 )
 
 type Boid interface {
-	Update(float64, float64, []Boid)
+	Update(float64, float64, []Boid, int, chan *Data)
 	Draw(*ebiten.Image)
 	Coords() v.Vector2D
 	Velocity() v.Vector2D
+	Apply(*v.Vector2D, *v.Vector2D)
+}
+
+type Data struct {
+	Index  int
+	NewPos *v.Vector2D
+	NewVel *v.Vector2D
 }
 type Arrow struct {
 	ImageWidth  int
@@ -31,23 +38,27 @@ func Teleport(pos, edge float64) float64 {
 	}
 	return pos
 }
-func (a *Arrow) Update(sx, sy float64, population []Boid) {
+func (a *Arrow) Update(sx, sy float64, population []Boid, index int, info chan *Data) {
 	a.Pos.X = Teleport(a.Pos.X, sx)
 	a.Pos.Y = Teleport(a.Pos.Y, sy)
 	align, cohesion, separation := a.rules(population)
 	a.Accel.Add(*align)
 	a.Accel.Add(*cohesion)
 	a.Accel.Add(*separation)
+	//a.Accel.SetMagnitude(1.)
 	/* align.Divide(1)
 	cohesion.Divide(1)
 	separation.Divide(1) */
-	maxi := 2.
-	a.Pos.Add(*a.Vel)
-	a.Vel.Mini(maxi)
-	a.Vel.Add(*a.Accel)
-	//a.Vel.Limit(3.)
-
+	newPos := &v.Vector2D{a.Pos.X + a.Vel.X, a.Pos.Y + a.Vel.Y}
+	newVel := &v.Vector2D{a.Vel.X + a.Accel.X, a.Vel.Y + a.Accel.Y}
 	a.Accel = &v.Vector2D{}
+	data := &Data{
+		Index:  index,
+		NewPos: newPos,
+		NewVel: newVel,
+	}
+	info <- data
+
 }
 func (a *Arrow) Draw(screen *ebiten.Image) {
 	option := &ebiten.DrawImageOptions{}
@@ -60,6 +71,10 @@ func (a *Arrow) Draw(screen *ebiten.Image) {
 	}
 	option.GeoM.Translate(a.Pos.X, a.Pos.Y)
 	screen.DrawImage(a.Image, option)
+}
+func (a *Arrow) Apply(newPos, newVel *v.Vector2D) {
+	a.Pos = newPos
+	a.Vel = newVel
 }
 func (a *Arrow) align(population []Boid) v.Vector2D {
 	maxspeed := 5.
@@ -132,9 +147,10 @@ func (a *Arrow) separation(population []Boid) v.Vector2D {
 func (a *Arrow) rules(population []Boid) (steeringA, steeringC, steeringS *v.Vector2D) {
 	steeringA, steeringC, steeringS = &v.Vector2D{}, &v.Vector2D{}, &v.Vector2D{}
 	maxspeedA, maxspeedC, maxspeedS := 4., 4., 4.
-	maxforceA, maxforceC, maxforceS := 1., 0.9, 1.2
-	perceptionA, perceptionC, perceptionS := 75., 100., 50.
+	maxforceA, maxforceC, maxforceS := 1., 1., 1.4
+	perceptionA, perceptionC, perceptionS := 75., 60., 50.
 	var counterA, counterC, counterS int
+
 	for _, boid := range population {
 		pos := boid.Coords()
 		//align
