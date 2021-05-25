@@ -6,7 +6,6 @@ import (
 	"log"
 	"math"
 	"math/rand"
-	"time"
 
 	b "github.com/BozeBro/boids/boid"
 	v "github.com/BozeBro/boids/vector"
@@ -64,7 +63,8 @@ func (sim *Sim) Layout(outsideWidth, outsideHeight int) (int, int) {
 }
 
 func main() {
-	rand.Seed(time.Now().UTC().UnixNano())
+	//rand.Seed(time.Now().UTC().UnixNano())
+	rand.Seed(2)
 	ebiten.SetWindowSize(screenWidth, screenHeight)
 	ebiten.SetWindowTitle("Boid Simulation")
 	image := loadImage("images/boid.png")
@@ -73,7 +73,7 @@ func main() {
 		Image:       image,
 		ImageWidth:  w,
 		ImageHeight: h,
-		SightDis:    float64(w),
+		SightDis:    3 * float64(w),
 		Pos:         &v.Vector2D{X: screenWidth / 2, Y: screenHeight / 2},
 		Vel:         &v.Vector2D{X: 1, Y: 0},
 		Accel:       &v.Vector2D{X: 0, Y: 0},
@@ -120,9 +120,10 @@ func main() {
 	sim := &Sim{
 		population: []b.Boid{},
 	}
-	for i := 0; i < 500; i++ {
+	for i := 0; i < 1000; i++ {
 		sx := rand.Float64() * screenWidth
 		sy := rand.Float64() * screenHeight
+		//sx, sy = screenWidth/2, screenHeight/2
 		nx, ny := 1., 1.
 		m := rand.Intn(2)
 		n := rand.Intn(2)
@@ -132,8 +133,11 @@ func main() {
 		if n != 1 {
 			ny = -1.
 		}
+		//nx, ny = 1, 1
 		velx := rand.Float64() * 3
 		vely := rand.Float64() * 3
+		/* velx = 2.5
+		vely = 1.2 */
 		obj := &b.Arrow{
 			Image:       image,
 			ImageWidth:  w,

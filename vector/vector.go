@@ -1,6 +1,8 @@
 package vector
 
-import "math"
+import (
+	"math"
+)
 
 // Finds angle relative to the y-axis.
 // Clockwise is positive and Counterclockwise is negative.
@@ -33,14 +35,15 @@ func (v *Vector2D) Subtract(v2 Vector2D) {
 }
 
 func (v *Vector2D) Normalize() {
-	mag := math.Sqrt(v.X*v.X + v.Y*v.Y)
-	v.X /= mag
-	v.Y /= mag
+	mag := math.Sqrt(v.MagnitudeSquared())
+	if mag == 0 {
+		return
+	}
+	v.Divide(mag)
 }
 func (v *Vector2D) SetMagnitude(z float64) {
 	v.Normalize()
-	v.X *= z
-	v.Y *= z
+	v.Multiply(z)
 }
 
 func (v *Vector2D) MagnitudeSquared() float64 {
@@ -113,7 +116,9 @@ func IsIntersect(a, b, c, d Vector2D) (t, u float64, intersected bool) {
 }
 
 // IntersectionPoints finds the actual intersection points.
-// Will return non-valid numbers if t vector was invalid from IsIntersect
+// Will return non-valid numbers if t vector was invalid from IsIntersect.
+// Uses the t arguement from IsIntersect.
+// a and b are position and newPos of boid respectively.
 func IntersectionPoint(a, b Vector2D, t float64) (x, y float64) {
 	return a.X + t*(b.X-a.X), a.Y + t*(b.Y-a.Y)
 }
@@ -122,6 +127,7 @@ func Distance(v, v2 Vector2D) float64 {
 	return math.Sqrt(math.Pow(v2.X-v.X, 2) + math.Pow(v2.Y-v.Y, 2))
 }
 
+// IsSeen calculates angle of boid relative to current boid
 func IsSeen(pos, newPos, otherPos *Vector2D) (cosAngle float64) {
 	var (
 		dx1 = newPos.X - pos.X
@@ -132,4 +138,10 @@ func IsSeen(pos, newPos, otherPos *Vector2D) (cosAngle float64) {
 	den := math.Sqrt(dx1*dx1+dy1*dy1) * math.Sqrt(dx2*dx2+dy2*dy2)
 	cosAngle = (dx1*dx2 + dy1*dy2) / den
 	return cosAngle
+}
+func Sign(num float64) float64 {
+	if num >= 0 {
+		return 1
+	}
+	return -1
 }
